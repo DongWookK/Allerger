@@ -5,16 +5,23 @@
     android:layout_height="match_parent"
     android:background="@drawable/background"
     android:orientation="vertical">
-    <ImageView android:id="@+id/imgview"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_gravity="center"/>
     <TextView
         android:id="@+id/title"
+        android:layout_marginTop="100dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textStyle="bold"
         android:textSize="40dp"
         android:text="Result"/>
+    <ImageView android:id="@+id/imgview"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="center"/>
+    <TextView
+        android:id="@+id/pathId"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
 </LinearLayout>
