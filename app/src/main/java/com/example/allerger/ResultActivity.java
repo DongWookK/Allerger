@@ -10,9 +10,8 @@ import android.widget.Toast;
 
 public class ResultActivity extends AppCompatActivity {
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.result);
+    protected void onCreate(Bundle bundle){
+        super.onCreate(bundle);
         // ActionBar의 타이틀 변경
         getSupportActionBar().setTitle("Result");
         // ActionBar의 배경색 변경

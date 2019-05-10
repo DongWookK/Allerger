@@ -1,6 +1,7 @@
 package com.example.allerger;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -14,11 +15,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,7 +38,7 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     private BackPressCloseHandler backPressCloseHandler;
-    private final int REQUEST_PERMISSION_CODE = 2222;
+    private final int REQUEST_PERMISSION_CODE = 1111;
     private final int CAMERA_CODE = 1111;
     private final int GALLERY_CODE = 1112;
     private Uri photoUri;
@@ -47,19 +51,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         backPressCloseHandler = new BackPressCloseHandler(this);
-
-        // 권한 요청
-        if (ContextCompat.checkSelfPermission(MainActivity.this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            } else {
-                ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        REQUEST_PERMISSION_CODE);
-            }
-        }
 
         // ActionBar의 타이틀 변경
         getSupportActionBar().setTitle("Allerger test version");
@@ -99,6 +90,39 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "(Profile) 준비중입니다", Toast.LENGTH_SHORT).show();
             }
         });
+
+        // 사용자 권한 요청
+        checkPermission();
+    }
+
+    // 사용자 권한 요청
+    private void checkPermission(){
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            if((ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) || (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA))){
+                new AlertDialog.Builder(this)
+                        .setTitle("알림")
+                        .setMessage("저장소 권한이 거부되었습니다. 사용을 원하시면 설정에서 해당 권한을 직접 허용하셔야 합니다.")
+                        .setNeutralButton("설정", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                intent.setData(Uri.parse("package:" + getPackageName()));
+                                startActivity(intent);
+                            }
+                        })
+                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        })
+                        .setCancelable(false)
+                        .create()
+                        .show();
+            } else{
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, REQUEST_PERMISSION_CODE);
+            }
+        }
     }
 
     // 사용자 권한 요청 응답 처리
@@ -107,24 +131,23 @@ public class MainActivity extends AppCompatActivity {
                                            @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_PERMISSION_CODE:
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast toast=Toast.makeText(this,
-                            "동의해주셔서 감사합니다.", Toast.LENGTH_SHORT);
-                    toast.show();
-                } else {
-                    Toast toast=Toast.makeText(this,
-                            "기능 사용을 위한 권한 동의가 필요합니다.", Toast.LENGTH_SHORT);
-                    toast.show();
-                    finish();
+                for(int i = 0; i <grantResults.length; i++){
+                    // grantResults[] : 허용된 권한은 0, 거부한 권한은 -1
+                    if(grantResults[i] < 0){
+                        Toast.makeText(MainActivity.this, "해당 권한을 활성화 하셔야 합니다.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                 }
-                return;
+                // 허용 되었을 경우
+                Toast.makeText(MainActivity.this, "권한이 허용 되었습니다.", Toast.LENGTH_SHORT).show();
+                break;
         }
     }
 
     // 카메라 기능
     private void selectPhoto() {
         String state = Environment.getExternalStorageState();
+        // 외장메모리 검사
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             if (intent.resolveActivity(getPackageManager()) != null) {
@@ -132,15 +155,17 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     photoFile = createImageFile();
                 } catch (IOException ex) {
-
+                    Log.e("selectPhoto Error", ex.toString());
                 }
                 if (photoFile != null) {
-                    photoUri = FileProvider.getUriForFile(this, getPackageName(), photoFile);
+                    photoUri = FileProvider.getUriForFile(this, "com.example.allerger", photoFile);
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                     startActivityForResult(intent, CAMERA_CODE);
                 }
             }
-
+        }else{
+            Toast.makeText(this, "저장공간이 접근 불가능한 기기입니다", Toast.LENGTH_SHORT).show();
+            return;
         }
     }
 
@@ -158,31 +183,6 @@ public class MainActivity extends AppCompatActivity {
         currentPhotoPath = storageDir.getAbsolutePath();
 
         return storageDir;
-    }
-
-    // 카메라로 찍은 사진을 결과 창으로 전달
-    private void getPictureForPhoto() {
-        Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath);
-        ExifInterface exif = null;
-        try {
-            exif = new ExifInterface(currentPhotoPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        int exifOrientation;
-        int exifDegree;
-
-        if (exif != null) {
-            exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-            exifDegree = exifOrientationToDegrees(exifOrientation);
-        } else {
-            exifDegree = 0;
-        }
-        setContentView(R.layout.result);
-        ImageView imageView = findViewById(R.id.imgview);
-        imageView.setImageBitmap(rotate(bitmap, exifDegree));//이미지 뷰에 비트맵 넣기
-        TextView textView = findViewById(R.id.pathId);
-        textView.setText(currentPhotoPath);  // 텍스트를 경로로 변경
     }
 
     // 갤러리 기능 실행
@@ -217,46 +217,69 @@ public class MainActivity extends AppCompatActivity {
                 src.getHeight(), matrix, true);
     }
 
-    // 결과 창으로 사진 전달
-    private void sendPicture(Uri imgUri) {
-
-        String imagePath = getRealPathFromURI(imgUri); // path 경로
-        ExifInterface exif = null;
-        try {
-            exif = new ExifInterface(imagePath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-        int exifDegree = exifOrientationToDegrees(exifOrientation);
-
-        setContentView(R.layout.result);
-        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);  //  경로를 통해 비트맵으로 전환
-        ImageView imageView = findViewById(R.id.imgview);
-        imageView.setImageBitmap(rotate(bitmap, exifDegree));  //  이미지 뷰에 비트맵 넣기
-        TextView textView = findViewById(R.id.pathId);
-        textView.setText(imagePath);  // 텍스트를 경로로 변경
-    }
-
     // 각 Intent 결과 처리
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (resultCode == RESULT_OK) {
-
             switch (requestCode) {
-
                 case GALLERY_CODE:
-                    sendPicture(data.getData());  // 갤러리에서 가져오기
+                    if(data != null){
+                        Log.e("Test", "result = "+data);
+                        Uri imgUri = data.getData();
+                        String imagePath = getRealPathFromURI(imgUri); // path 경로
+                        ExifInterface exif = null;
+                        try {
+                            exif = new ExifInterface(imagePath);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                        int exifDegree = exifOrientationToDegrees(exifOrientation);
+
+                        setContentView(R.layout.result);
+                        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);  //  경로를 통해 비트맵으로 전환
+                        if(bitmap != null) {
+                            ImageView imageView = findViewById(R.id.imgview);
+                            imageView.setImageBitmap(rotate(bitmap, exifDegree));  //  이미지 뷰에 비트맵 넣기
+                            TextView textView = findViewById(R.id.pathId);
+                            textView.setText(imagePath);  // 텍스트를 경로로 변경
+                        }
+                    }
                     break;
+
                 case CAMERA_CODE:
-                     getPictureForPhoto();  // 카메라에서 가져오기
-                    break;
+                    if(data != null) {
+                        Log.e("Test", "result = "+data);
+                        Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath);
+                        ExifInterface exif = null;
+                        try {
+                            exif = new ExifInterface(currentPhotoPath);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        int exifOrientation;
+                        int exifDegree;
+
+                        if (exif != null) {
+                            exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                            exifDegree = exifOrientationToDegrees(exifOrientation);
+                        } else {
+                            exifDegree = 0;
+                        }
+                        setContentView(R.layout.result);
+                        if(bitmap != null) {
+                            ImageView imageView = findViewById(R.id.imgview);
+                            imageView.setImageBitmap(rotate(bitmap, exifDegree));//이미지 뷰에 비트맵 넣기
+                            TextView textView = findViewById(R.id.pathId);
+                            textView.setText(currentPhotoPath);  // 텍스트를 경로로 변경
+                        }
+                        break;
+                    }
+
                 default:
                     break;
             }
-
         }
     }
 
