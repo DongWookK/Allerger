@@ -13,10 +13,6 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle bundle){
         super.onCreate(bundle);
         setContentView(R.layout.profile);
-        // ActionBar의 타이틀 변경
-        getSupportActionBar().setTitle("Profile");
-        // ActionBar의 배경색 변경
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFF339999));
     }
     // Menu Inflater 생성
     @Override

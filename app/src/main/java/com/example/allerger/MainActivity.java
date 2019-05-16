@@ -22,6 +22,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private String currentPhotoPath;  // 실제 사진 파일 경로
     private String imagePath;
     String mImageCaptureName;  // 이미지 이름
+    Toolbar toolbar;
 
     // 메인 레이아웃 생성 및 실행
     @Override
@@ -53,15 +55,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         backPressCloseHandler = new BackPressCloseHandler(this);
 
-        // ActionBar의 타이틀 변경
-        getSupportActionBar().setTitle("Allerger test version");
-        // ActionBar의 배경색 변경
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFF339999));
-
-        // 메인 로고 폰트 적용
-        TextView textView = findViewById(R.id.title);
-        Typeface typeface = Typeface.createFromAsset(getAssets(), "font_b.ttf");
-        textView.setTypeface(typeface);
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         // 각 버튼마다 객체 생성
         ImageButton cameraButton = findViewById(R.id.cameraBtn);
@@ -313,30 +308,25 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
+        return true;
     }
 
     // menu_id로 구분된 메뉴 처리
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-        int menu_id = item.getItemId();
-
-        switch(menu_id){
+        switch(item.getItemId()){
             case R.id.menu_home:
                 Toast.makeText(this,"(HOME)",Toast.LENGTH_SHORT).show();
                 break;
             case R.id.menu_notice:
-                Toast.makeText(this,"(Notice)",Toast.LENGTH_SHORT).show();
                 Intent intent_notice = new Intent(getApplicationContext(), NoticeActivity.class);
                 startActivity(intent_notice);
                 break;
             case R.id.menu_help:
-                Toast.makeText(this,"(HELP)",Toast.LENGTH_SHORT).show();
                 Intent intent_help = new Intent(getApplicationContext(), HelpActivity.class);
                 startActivity(intent_help);
                 break;
             case R.id.menu_settings:
-                Toast.makeText(this,"(SETTINGS)",Toast.LENGTH_SHORT).show();
                 Intent intent_settings = new Intent(getApplicationContext(), SettingsActivity.class);
                 startActivity(intent_settings);
         }
