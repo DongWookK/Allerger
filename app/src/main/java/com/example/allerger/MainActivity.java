@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private final int GALLERY_CODE = 1112;
     private Uri photoUri;
     private String currentPhotoPath;  // 실제 사진 파일 경로
+    private String imagePath;
     String mImageCaptureName;  // 이미지 이름
 
     // 메인 레이아웃 생성 및 실행
@@ -80,6 +81,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 selectGallery();
+
+
             }
         });
 
@@ -88,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 Toast.makeText(MainActivity.this, "(Profile) 준비중입니다", Toast.LENGTH_SHORT).show();
+
             }
         });
 
@@ -192,6 +196,8 @@ public class MainActivity extends AppCompatActivity {
         intent.setData(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
         startActivityForResult(intent, GALLERY_CODE);
+
+
     }
 
     // 사진의 회전값 가져오기
@@ -227,16 +233,23 @@ public class MainActivity extends AppCompatActivity {
                     if(data != null){
                         Log.e("Test", "result = "+data);
                         Uri imgUri = data.getData();
-                        String imagePath = getRealPathFromURI(imgUri); // path 경로
+                        imagePath = getRealPathFromURI(imgUri); // path 경로
                         ExifInterface exif = null;
                         try {
                             exif = new ExifInterface(imagePath);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+
                         int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
                         int exifDegree = exifOrientationToDegrees(exifOrientation);
+                        Toast.makeText(getApplicationContext(), "리설트왔다", Toast.LENGTH_SHORT).show();
 
+                        Intent intent2 = new Intent(MainActivity.this,ResultActivity.class);
+                        intent2.putExtra("path",imagePath);
+                        startActivity(intent2);
+
+                        /*
                         setContentView(R.layout.result);
                         Bitmap bitmap = BitmapFactory.decodeFile(imagePath);  //  경로를 통해 비트맵으로 전환
                         if(bitmap != null) {
@@ -245,6 +258,8 @@ public class MainActivity extends AppCompatActivity {
                             TextView textView = findViewById(R.id.pathId);
                             textView.setText(imagePath);  // 텍스트를 경로로 변경
                         }
+                        */
+
                     }
                     break;
 
