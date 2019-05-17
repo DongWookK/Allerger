@@ -1,14 +1,21 @@
 package com.example.allerger;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.content.res.AssetManager;
@@ -29,9 +36,39 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ResultActivity extends AppCompatActivity {
 
+    private final String dbName = "webnautes";//DBNAME
+    private final String tableName = "person";
+
+    private String compare[];//TEST FOR THE ALLERGY
+    {
+        compare=new String[]{"Fish","bEAN","Snow Flour"};
+    }
+    private String names[];
+    {
+        names = new String[]{"bean", "egg", "shrimp", "peach", "kiwi", "flour", "peanut", "fish", "tomato",
+                "almond","melon","walnut","hambuerger","cheeese","salmon","crab"};
+    }
+
+    private final String phones[];//COMPARE WITH NAMES THEN SHOW TO USER THE KOREAN
+    {
+        phones = new String[]{"땅콩알러지", "달걀", "갑각류", "복숭아","키위", "밀가루알러지", "땅콩", "물고기", "토마토","아몬드","멜론","호두",
+                "유제품 알러지","유제품 알러지","어패류","갑각류"};
+    }
+
+
+
+    ArrayList<HashMap<String, String>> personList; //DB CODE
+    ListView list;
+    private static final String TAG_NAME = "name";
+    private static final String TAG_PHONE ="Allergy";
+
+    SQLiteDatabase sampleDB = null;
+    ListAdapter adapter;
 
     Bitmap image; //사용되는 이미지
     private TessBaseAPI mTess; //Tess API reference
@@ -41,6 +78,41 @@ public class ResultActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.result);
+
+        list = (ListView) findViewById(R.id.listView);
+        personList = new ArrayList<HashMap<String,String>>();
+        for(int i=0;i<compare.length;i++)// GET LOWER CASE TO COMPARE THE STRING
+        {
+            compare[i]=compare[i].toLowerCase();
+        }
+
+        try {
+
+            sampleDB = this.openOrCreateDatabase(dbName, MODE_PRIVATE, null);//MAKE DB TO SAVE THE INFO ABOUT ALLERGY
+
+            //테이블이 존재하지 않으면 새로 생성합니다.
+            sampleDB.execSQL("CREATE TABLE IF NOT EXISTS " + tableName
+                    + " (name VARCHAR(20), phone VARCHAR(20) );");
+
+            //테이블이 존재하는 경우 기존 데이터를 지우기 위해서 사용합니다.
+            sampleDB.execSQL("DELETE FROM " + tableName  );
+
+            //새로운 데이터를 테이블에 집어넣습니다..
+            for (int i=0; i<names.length; i++ ) {
+                sampleDB.execSQL("INSERT INTO " + tableName
+                        + " (name, phone)  Values ('" + names[i] + "', '" + phones[i]+"');");
+            }
+
+            sampleDB.close();//close DB
+
+        } catch (SQLiteException se) {
+            Toast.makeText(getApplicationContext(),  se.getMessage(), Toast.LENGTH_LONG).show();
+            Log.e("", se.getMessage());
+
+
+        }
+
+
 
         Intent intent = getIntent();
         String path = intent.getExtras().getString("path");
@@ -67,12 +139,8 @@ public class ResultActivity extends AppCompatActivity {
         mTess.init(datapath, lang);
         processImage(imageView);
 
-
-
-
-
-
-
+        //안되면 여기부분 삭제
+        showList();
     }
 
 
@@ -122,5 +190,58 @@ public class ResultActivity extends AppCompatActivity {
                 copyFiles();
             }
         }
+    }
+    //오류시 show list 지우기/
+    protected void showList(){
+
+        try {
+
+            SQLiteDatabase ReadDB = this.openOrCreateDatabase(dbName, MODE_PRIVATE, null);
+            //SELECT문을 사용하여 테이블에 있는 데이터를 가져옵니다..
+            Cursor c = ReadDB.rawQuery("SELECT * FROM " + tableName, null);
+            if (c != null) {
+                if (c.moveToFirst()) {
+                    do {
+
+                        //테이블에서 두개의 컬럼값을 가져와서
+                        String Name = c.getString(c.getColumnIndex("name"));
+                        String Phone = c.getString(c.getColumnIndex("phone"));
+                        HashMap<String,String> persons = new HashMap<String,String>();
+                        for(int i=0;i<compare.length;i++)
+                        {
+                            if(compare[i].contains(Name))
+                            {
+                                persons.put(TAG_NAME,Name);
+                                persons.put(TAG_PHONE,Phone);
+
+                                //ArrayList에 추가합니다..
+                                personList.add(persons);
+                                break;
+                            }
+                        }
+
+                        //HashMap에 넣습니다.
+
+                    } while (c.moveToNext());
+                }
+            }
+            ReadDB.close();
+            //새로운 apapter를 생성하여 데이터를 넣은 후..
+            adapter = new SimpleAdapter(
+                    this, personList, R.layout.list_item,
+                    new String[]{TAG_NAME,TAG_PHONE},
+                    new int[]{ R.id.name, R.id.phone}
+            );
+
+
+            //화면에 보여주기 위해 Listview에 연결합니다.
+            list.setAdapter(adapter);
+
+
+        } catch (SQLiteException se) {
+            Toast.makeText(getApplicationContext(),  se.getMessage(), Toast.LENGTH_LONG).show();
+            Log.e("",  se.getMessage());
+        }
+
     }
 }
