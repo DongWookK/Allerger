@@ -44,14 +44,11 @@ public class ResultActivity extends AppCompatActivity {
     private final String dbName = "webnautes";//DBNAME
     private final String tableName = "person";
 
-    private String compare[];//TEST FOR THE ALLERGY
-    {
-        compare=new String[]{"Fish","bEAN","Snow Flour"};
-    }
+
     private String names[];
     {
         names = new String[]{"bean", "egg", "shrimp", "peach", "kiwi", "flour", "peanut", "fish", "tomato",
-                "almond","melon","walnut","hambuerger","cheeese","salmon","crab"};
+                "almond","melon","walnut","hambuerger","cheese","salmon","crab"};
     }
 
     private final String phones[];//COMPARE WITH NAMES THEN SHOW TO USER THE KOREAN
@@ -81,10 +78,7 @@ public class ResultActivity extends AppCompatActivity {
 
         list = (ListView) findViewById(R.id.listView);
         personList = new ArrayList<HashMap<String,String>>();
-        for(int i=0;i<compare.length;i++)// GET LOWER CASE TO COMPARE THE STRING
-        {
-            compare[i]=compare[i].toLowerCase();
-        }
+
 
         try {
 
@@ -139,8 +133,6 @@ public class ResultActivity extends AppCompatActivity {
         mTess.init(datapath, lang);
         processImage(imageView);
 
-        //안되면 여기부분 삭제
-        showList();
     }
 
 
@@ -149,7 +141,18 @@ public class ResultActivity extends AppCompatActivity {
         mTess.setImage(image);
         OCRresult = mTess.getUTF8Text();
         TextView OCRTextView = (TextView) findViewById(R.id.ocrResult);
+        //여기서 부터 데이터 클리어링.
+        OCRresult=OCRresult.toLowerCase();// 비교를 위해 소문자로 다 변환하는 코드
+        OCRresult=OCRresult.replaceAll("[0-9]","");//숫자제거하는 코드
+        OCRresult=OCRresult.replaceAll("[^a-z]","");
+
+
+        //여기까지 데이터 클리어링, 소문자로 통일, 숫자, 특수기호 제거.
+
+        //OCRTextView.setText(OCRresult);//여기가 OCR 출력하는 부분.
         OCRTextView.setText(OCRresult);
+
+        showList(OCRresult);
     }
 
 
@@ -192,7 +195,7 @@ public class ResultActivity extends AppCompatActivity {
         }
     }
     //오류시 show list 지우기/
-    protected void showList(){
+    protected void showList(String Clearing){
 
         try {
 
@@ -207,7 +210,7 @@ public class ResultActivity extends AppCompatActivity {
                         String Name = c.getString(c.getColumnIndex("name"));
                         String Phone = c.getString(c.getColumnIndex("phone"));
                         HashMap<String,String> persons = new HashMap<String,String>();
-                        for(int i=0;i<compare.length;i++)
+                        /*for(int i=0;i<compare.length;i++)
                         {
                             if(compare[i].contains(Name))
                             {
@@ -218,7 +221,15 @@ public class ResultActivity extends AppCompatActivity {
                                 personList.add(persons);
                                 break;
                             }
+                        }*/
+                        if (Clearing.contains(Name))
+                        {
+                            persons.put(TAG_NAME,Name);
+                            persons.put(TAG_PHONE,Phone);
+                            personList.add(persons);
+                            break;
                         }
+
 
                         //HashMap에 넣습니다.
 
