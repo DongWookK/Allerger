@@ -48,13 +48,14 @@ public class ResultActivity extends AppCompatActivity {
     private String names[];
     {
         names = new String[]{"bean", "egg", "shrimp", "peach", "kiwi", "flour", "peanut", "fish", "tomato",
-                "almond","melon","walnut","hambuerger","cheese","salmon","crab"};
+            "almond","melon","walnut","hamburger","cheese","salmon","crab","wheat","chocolate","butter","cocoa","canola","soy"};
     }
+
 
     private final String phones[];//COMPARE WITH NAMES THEN SHOW TO USER THE KOREAN
     {
         phones = new String[]{"땅콩알러지", "달걀", "갑각류", "복숭아","키위", "밀가루알러지", "땅콩", "물고기", "토마토","아몬드","멜론","호두",
-                "유제품 알러지","유제품 알러지","어패류","갑각류"};
+                "유제품 알러지","유제품 알러지","어패류","갑각류","밀가루","초콜렛 알러지","버터알러지","코코아 알러지","카놀라","간장"};
     }
 
 
@@ -138,19 +139,23 @@ public class ResultActivity extends AppCompatActivity {
 
     public void processImage(View view) {
         String OCRresult = null;
+        String print_=null;
         mTess.setImage(image);
         OCRresult = mTess.getUTF8Text();
         TextView OCRTextView = (TextView) findViewById(R.id.ocrResult);
         //여기서 부터 데이터 클리어링.
+
+
+
         OCRresult=OCRresult.toLowerCase();// 비교를 위해 소문자로 다 변환하는 코드
         OCRresult=OCRresult.replaceAll("[0-9]","");//숫자제거하는 코드
-        OCRresult=OCRresult.replaceAll("[^a-z]","");
-
+        OCRresult=OCRresult.replaceAll("[^a-z]"," ");
+        print_=OCRresult.trim().replaceAll(" +",", ");
 
         //여기까지 데이터 클리어링, 소문자로 통일, 숫자, 특수기호 제거.
 
         //OCRTextView.setText(OCRresult);//여기가 OCR 출력하는 부분.
-        OCRTextView.setText(OCRresult);
+        OCRTextView.setText(print_);
 
         showList(OCRresult);
     }
@@ -227,7 +232,6 @@ public class ResultActivity extends AppCompatActivity {
                             persons.put(TAG_NAME,Name);
                             persons.put(TAG_PHONE,Phone);
                             personList.add(persons);
-                            break;
                         }
 
 
