@@ -47,8 +47,8 @@ public class MainActivity extends AppCompatActivity
 
     // REQUEST CODE
     private final int REQUEST_PERMISSION_CODE = 1111;
-    private final int CAMERA_CODE = 1111;
-    private final int GALLERY_CODE = 1112;
+    private final int CAMERA_CODE = 2222;
+    private final int GALLERY_CODE = 3333;
     private Uri photoUri;
 
     // PHOTO PATH
@@ -97,19 +97,19 @@ public class MainActivity extends AppCompatActivity
         tabLayout.addTab(tabLayout.newTab().setText("Tab3"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        // TabLayout 이벤트 처리
+        // 스와이프에 대한 ViewPage, tabLayout 간 동기화
         final ViewPager viewPager = findViewById(R.id.pager);
         final PagerAdapter adapter = new PagerAdapter
                 (getSupportFragmentManager(), tabLayout.getTabCount());
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+
+        // 수동 선택에 대한 ViewPage, tabLayout 간 동기화
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
-                TabFragment1 fragment1 = new TabFragment1();
             }
-
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
 
@@ -144,77 +144,17 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_settings) {
             Intent intent_settings = new Intent(getApplicationContext(), SettingsActivity.class);
             startActivity(intent_settings);
+        } else if(id == R.id.nav_help){
+            Intent intent_help = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(intent_help);
+        } else if(id == R.id.nav_policy){
+            Intent intent_policy = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(intent_policy);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    // Menu 이벤트 처리
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent intent_settings = new Intent(getApplicationContext(), Settings.class);
-            startActivity(intent_settings);
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    // 이거 뭔지 모르겠음
-    public static class PlaceholderFragment extends Fragment {
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public PlaceholderFragment() {
-        }
-
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-            public SectionsPagerAdapter(FragmentManager fm) {
-                super(fm);
-            }
-
-            @Override
-            public Fragment getItem(int position) {
-                // getItem is called to instantiate the fragment for the given page.
-                // Return a PlaceholderFragment (defined as a static inner class below).
-                return PlaceholderFragment.newInstance(position + 1);
-            }
-
-            @Override
-            public int getCount() {
-                // Show 3 total pages.
-                return 3;
-            }
-
-            @Override
-            public CharSequence getPageTitle(int position) {
-                switch (position) {
-                    case 0:
-                        TabFragment1 tab1 = new TabFragment1();
-                    case 1:
-                        TabFragment2 tab2 = new TabFragment2();
-                    case 2:
-                        TabFragment3 tab3 = new TabFragment3();
-                }
-                return null;
-            }
-        }
     }
 
     // 사용자 권한 요청
@@ -316,29 +256,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    // 사진의 회전값 가져오기
-    private int exifOrientationToDegrees(int exifOrientation) {
-        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
-            return 90;
-        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
-            return 180;
-        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
-            return 270;
-        }
-        return 0;
-    }
-
-    // 사진을 정방향대로 회전하기
-    private Bitmap rotate(Bitmap src, float degree) {
-        // Matrix 객체 생성
-        Matrix matrix = new Matrix();
-        // 회전 각도 셋팅
-        matrix.postRotate(degree);
-        // 이미지와 Matrix 를 셋팅해서 Bitmap 객체 생성
-        return Bitmap.createBitmap(src, 0, 0, src.getWidth(),
-                src.getHeight(), matrix, true);
-    }
-
     // 각 Intent 결과 처리
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -347,54 +264,21 @@ public class MainActivity extends AppCompatActivity
             switch (requestCode) {
                 case GALLERY_CODE:
                     if (data != null) {
-                        Log.e("Test", "result = " + data);
                         Uri imgUri = data.getData();
                         imagePath = getRealPathFromURI(imgUri); // path 경로
-                        ExifInterface exif = null;
-                        try {
-                            exif = new ExifInterface(imagePath);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                        int exifDegree = exifOrientationToDegrees(exifOrientation);
-                        Intent intent_result = new Intent(MainActivity.this, ResultActivity.class);
-                        intent_result.putExtra("path", imagePath);
-                        startActivity(intent_result);
+                        Intent intent_result_gallery = new Intent(MainActivity.this, ResultActivity.class);
+                        intent_result_gallery.putExtra("path", imagePath);
+                        startActivity(intent_result_gallery);
                     }
                     break;
 
                 case CAMERA_CODE:
                     if (data != null) {
-                        Log.e("Test", "result = " + data);
-                        Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath);
-                        ExifInterface exif = null;
-                        try {
-                            exif = new ExifInterface(currentPhotoPath);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        int exifOrientation;
-                        int exifDegree;
-
-                        if (exif != null) {
-                            exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                            exifDegree = exifOrientationToDegrees(exifOrientation);
-                        } else {
-                            exifDegree = 0;
-                        }
-                        Intent intent_result = new Intent(MainActivity.this, ResultActivity.class);
-                        intent_result.putExtra("path", imagePath);
-                        startActivity(intent_result);
-                        setContentView(R.layout.result);
-                        if (bitmap != null) {
-                            ImageView imageView = findViewById(R.id.imgview);
-                            imageView.setImageBitmap(rotate(bitmap, exifDegree));//이미지 뷰에 비트맵 넣기
-                            TextView textView = findViewById(R.id.pathId);
-                            textView.setText(currentPhotoPath);  // 텍스트를 경로로 변경
-                        }
-                        break;
+                        Intent intent_result_camera = new Intent(MainActivity.this, ResultActivity.class);
+                        intent_result_camera.putExtra("path", currentPhotoPath);
+                        startActivity(intent_result_camera);
                     }
+                    break;
                 default:
                     break;
             }
