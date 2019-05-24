@@ -15,7 +15,6 @@
         android:layout_height="wrap_content"
         android:textStyle="bold"/>
 
-
     <TextView
         android:id="@+id/phone"
         android:layout_width="0dp"

@@ -5,7 +5,7 @@
     <LinearLayout
         android:id="@+id/result"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:background="@color/background"
         android:orientation="vertical">
         <TextView
@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:textStyle="bold"
-            android:textSize="40dp"
+            android:textSize="40sp"
             android:text="Result"/>
         <ImageView android:id="@+id/imgview"
             android:layout_width="150dp"
@@ -31,10 +31,9 @@
             android:id="@+id/ocrResult"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
-
         <ListView
-            android:id="@+id/listView"
             android:layout_width="match_parent"
-            android:layout_height="205dp" />
+            android:layout_height="wrap_content"
+            android:id="@+id/listView" />
     </LinearLayout>
 </ScrollView>

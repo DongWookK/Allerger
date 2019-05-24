@@ -41,9 +41,8 @@ import java.util.HashMap;
 
 public class ResultActivity extends AppCompatActivity {
 
-    private final String dbName = "webnautes";//DBNAME
+    private final String dbName = "webnautes";// DBNAME
     private final String tableName = "person";
-
 
     private String names[];
     {
@@ -51,14 +50,11 @@ public class ResultActivity extends AppCompatActivity {
             "almond","melon","walnut","hamburger","cheese","salmon","crab","wheat","chocolate","butter","cocoa","canola","soy"};
     }
 
-
-    private final String phones[];//COMPARE WITH NAMES THEN SHOW TO USER THE KOREAN
+    private final String phones[];// COMPARE WITH NAMES THEN SHOW TO USER THE KOREAN
     {
         phones = new String[]{"땅콩알러지", "달걀", "갑각류", "복숭아","키위", "밀가루알러지", "땅콩", "물고기", "토마토","아몬드","멜론","호두",
                 "유제품 알러지","유제품 알러지","어패류","갑각류","밀가루","초콜렛 알러지","버터알러지","코코아 알러지","카놀라","간장"};
     }
-
-
 
     ArrayList<HashMap<String, String>> personList; //DB CODE
     ListView list;
@@ -68,16 +64,16 @@ public class ResultActivity extends AppCompatActivity {
     SQLiteDatabase sampleDB = null;
     ListAdapter adapter;
 
-    Bitmap image; //사용되는 이미지
-    private TessBaseAPI mTess; //Tess API reference
-    String datapath = "" ; //언어데이터가 있는 경로
+    Bitmap image; // 사용되는 이미지
+    private TessBaseAPI mTess; // Tess API reference
+    String datapath = "" ; // 언어데이터가 있는 경로
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.result);
 
-        list = (ListView) findViewById(R.id.listView);
+        list = findViewById(R.id.listView);
         personList = new ArrayList<HashMap<String,String>>();
 
 
@@ -107,8 +103,6 @@ public class ResultActivity extends AppCompatActivity {
 
         }
 
-
-
         Intent intent = getIntent();
         String path = intent.getExtras().getString("path");
         TextView textView = findViewById(R.id.pathId);
@@ -117,7 +111,7 @@ public class ResultActivity extends AppCompatActivity {
 
         File imgFile = new File(path);
         Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-        ImageView imageView = (ImageView) findViewById(R.id.imgview);
+        ImageView imageView = findViewById(R.id.imgview);
         imageView.setImageBitmap(myBitmap);
 
         image = myBitmap;
@@ -133,16 +127,14 @@ public class ResultActivity extends AppCompatActivity {
         mTess = new TessBaseAPI();
         mTess.init(datapath, lang);
         processImage(imageView);
-
     }
-
 
     public void processImage(View view) {
         String OCRresult = null;
-        String print_=null;
+        String print_= null;
         mTess.setImage(image);
         OCRresult = mTess.getUTF8Text();
-        TextView OCRTextView = (TextView) findViewById(R.id.ocrResult);
+        TextView OCRTextView = findViewById(R.id.ocrResult);
         //여기서 부터 데이터 클리어링.
 
 
@@ -160,8 +152,7 @@ public class ResultActivity extends AppCompatActivity {
         showList(OCRresult);
     }
 
-
-    //copy file to device
+    // copy file to device
     private void copyFiles() {
         try{
             String filepath = datapath + "/tessdata/eng.traineddata";
@@ -184,7 +175,7 @@ public class ResultActivity extends AppCompatActivity {
         }
     }
 
-    //check file on the device
+    // check file on the device
     private void checkFile(File dir) {
         //디렉토리가 없으면 디렉토리를 만들고 그후에 파일을 카피
         if(!dir.exists()&& dir.mkdirs()) {
@@ -199,19 +190,18 @@ public class ResultActivity extends AppCompatActivity {
             }
         }
     }
-    //오류시 show list 지우기/
+    // 오류시 show list 지우기
     protected void showList(String Clearing){
-
         try {
 
             SQLiteDatabase ReadDB = this.openOrCreateDatabase(dbName, MODE_PRIVATE, null);
-            //SELECT문을 사용하여 테이블에 있는 데이터를 가져옵니다..
+            // SELECT문을 사용하여 테이블에 있는 데이터를 가져옵니다..
             Cursor c = ReadDB.rawQuery("SELECT * FROM " + tableName, null);
             if (c != null) {
                 if (c.moveToFirst()) {
                     do {
 
-                        //테이블에서 두개의 컬럼값을 가져와서
+                        // 테이블에서 두개의 컬럼값을 가져와서
                         String Name = c.getString(c.getColumnIndex("name"));
                         String Phone = c.getString(c.getColumnIndex("phone"));
                         HashMap<String,String> persons = new HashMap<String,String>();
@@ -235,23 +225,22 @@ public class ResultActivity extends AppCompatActivity {
                         }
 
 
-                        //HashMap에 넣습니다.
+                        // HashMap에 넣습니다.
 
                     } while (c.moveToNext());
                 }
             }
             ReadDB.close();
-            //새로운 apapter를 생성하여 데이터를 넣은 후..
+
+            // 새로운 apapter를 생성하여 데이터를 넣은 후..
             adapter = new SimpleAdapter(
                     this, personList, R.layout.list_item,
                     new String[]{TAG_NAME,TAG_PHONE},
                     new int[]{ R.id.name, R.id.phone}
             );
 
-
-            //화면에 보여주기 위해 Listview에 연결합니다.
+            // 화면에 보여주기 위해 Listview에 연결합니다.
             list.setAdapter(adapter);
-
 
         } catch (SQLiteException se) {
             Toast.makeText(getApplicationContext(),  se.getMessage(), Toast.LENGTH_LONG).show();

@@ -8,27 +8,31 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.media.ExifInterface;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,68 +40,187 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import android.support.design.widget.NavigationView;
 
-public class MainActivity extends AppCompatActivity {
-    private BackPressCloseHandler backPressCloseHandler;
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener {
+
+    // REQUEST CODE
     private final int REQUEST_PERMISSION_CODE = 1111;
     private final int CAMERA_CODE = 1111;
     private final int GALLERY_CODE = 1112;
     private Uri photoUri;
-    private String currentPhotoPath;  // 실제 사진 파일 경로
-    private String imagePath;
-    String mImageCaptureName;  // 이미지 이름
-    Toolbar toolbar;
 
-    // 메인 레이아웃 생성 및 실행
+    // PHOTO PATH
+    private String currentPhotoPath;
+    private String imagePath;
+    String mImageCaptureName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        backPressCloseHandler = new BackPressCloseHandler(this);
 
-        toolbar = findViewById(R.id.toolbar);
+        // 최초 레이아웃 실행
+        setContentView(R.layout.activity_main);
+
+        // 권한 체크
+        checkPermission();
+
+        // Toolbar 실행
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // 각 버튼마다 객체 생성
-        ImageButton cameraButton = findViewById(R.id.cameraBtn);
-        ImageButton galleryButton = findViewById(R.id.galleryBtn);
-        Button profileButton = findViewById(R.id.profileBtn);
-
-        // 카메라 버튼 클릭 후 기능 실행
-        cameraButton.setOnClickListener(new View.OnClickListener() {
+        // FloatingActionButton 이벤트 처리
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {    // 카메라 실행
-                selectPhoto();
-            }
-        });
-
-        // 갤러리 버튼 클릭 후 기능 실행
-        galleryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 selectGallery();
-
-
             }
         });
 
-        // 프로필 생성 버튼 클릭 후 기능 실행
-        profileButton.setOnClickListener(new View.OnClickListener(){
+        // DrawerLayout 실행 및 관리
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        // Navigation 이벤트 리스너
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        // TabLayout 실행
+        TabLayout tabLayout = findViewById(R.id.tab_layout);
+        tabLayout.addTab(tabLayout.newTab().setText("Tab1"));
+        tabLayout.addTab(tabLayout.newTab().setText("Tab2"));
+        tabLayout.addTab(tabLayout.newTab().setText("Tab3"));
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        // TabLayout 이벤트 처리
+        final ViewPager viewPager = findViewById(R.id.pager);
+        final PagerAdapter adapter = new PagerAdapter
+                (getSupportFragmentManager(), tabLayout.getTabCount());
+        viewPager.setAdapter(adapter);
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public void onClick(View v){
-                Toast.makeText(MainActivity.this, "(Profile) 준비중입니다", Toast.LENGTH_SHORT).show();
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+                TabFragment1 fragment1 = new TabFragment1();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
 
             }
         });
+    }
 
-        // 사용자 권한 요청
-        checkPermission();
+    // 뒤로가기 버튼 처리
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    // Navigation 이벤트 처리
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.nav_camera) {
+            selectPhoto();
+        } else if (id == R.id.nav_gallery) {
+            selectGallery();
+        } else if (id == R.id.nav_settings) {
+            Intent intent_settings = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(intent_settings);
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    // Menu 이벤트 처리
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            Intent intent_settings = new Intent(getApplicationContext(), Settings.class);
+            startActivity(intent_settings);
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    // 이거 뭔지 모르겠음
+    public static class PlaceholderFragment extends Fragment {
+        private static final String ARG_SECTION_NUMBER = "section_number";
+
+        public PlaceholderFragment() {
+        }
+
+        public static PlaceholderFragment newInstance(int sectionNumber) {
+            PlaceholderFragment fragment = new PlaceholderFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+            public SectionsPagerAdapter(FragmentManager fm) {
+                super(fm);
+            }
+
+            @Override
+            public Fragment getItem(int position) {
+                // getItem is called to instantiate the fragment for the given page.
+                // Return a PlaceholderFragment (defined as a static inner class below).
+                return PlaceholderFragment.newInstance(position + 1);
+            }
+
+            @Override
+            public int getCount() {
+                // Show 3 total pages.
+                return 3;
+            }
+
+            @Override
+            public CharSequence getPageTitle(int position) {
+                switch (position) {
+                    case 0:
+                        TabFragment1 tab1 = new TabFragment1();
+                    case 1:
+                        TabFragment2 tab2 = new TabFragment2();
+                    case 2:
+                        TabFragment3 tab3 = new TabFragment3();
+                }
+                return null;
+            }
+        }
     }
 
     // 사용자 권한 요청
-    private void checkPermission(){
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-            if((ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) || (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA))){
+    private void checkPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if ((ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) || (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA))) {
                 new AlertDialog.Builder(this)
                         .setTitle("알림")
                         .setMessage("저장소 권한이 거부되었습니다. 사용을 원하시면 설정에서 해당 권한을 직접 허용하셔야 합니다.")
@@ -118,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
                         .setCancelable(false)
                         .create()
                         .show();
-            } else{
+            } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, REQUEST_PERMISSION_CODE);
             }
         }
@@ -130,9 +253,9 @@ public class MainActivity extends AppCompatActivity {
                                            @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_PERMISSION_CODE:
-                for(int i = 0; i <grantResults.length; i++){
+                for (int i = 0; i < grantResults.length; i++) {
                     // grantResults[] : 허용된 권한은 0, 거부한 권한은 -1
-                    if(grantResults[i] < 0){
+                    if (grantResults[i] < 0) {
                         Toast.makeText(MainActivity.this, "해당 권한을 활성화 하셔야 합니다.", Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -162,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivityForResult(intent, CAMERA_CODE);
                 }
             }
-        }else{
+        } else {
             Toast.makeText(this, "저장공간이 접근 불가능한 기기입니다", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -186,12 +309,10 @@ public class MainActivity extends AppCompatActivity {
 
     // 갤러리 기능 실행
     private void selectGallery() {
-
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setData(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
         startActivityForResult(intent, GALLERY_CODE);
-
 
     }
 
@@ -225,8 +346,8 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case GALLERY_CODE:
-                    if(data != null){
-                        Log.e("Test", "result = "+data);
+                    if (data != null) {
+                        Log.e("Test", "result = " + data);
                         Uri imgUri = data.getData();
                         imagePath = getRealPathFromURI(imgUri); // path 경로
                         ExifInterface exif = null;
@@ -235,32 +356,17 @@ public class MainActivity extends AppCompatActivity {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-
                         int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
                         int exifDegree = exifOrientationToDegrees(exifOrientation);
-                        Toast.makeText(getApplicationContext(), "리설트왔다", Toast.LENGTH_SHORT).show();
-
-                        Intent intent2 = new Intent(MainActivity.this,ResultActivity.class);
-                        intent2.putExtra("path",imagePath);
-                        startActivity(intent2);
-
-                        /*
-                        setContentView(R.layout.result);
-                        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);  //  경로를 통해 비트맵으로 전환
-                        if(bitmap != null) {
-                            ImageView imageView = findViewById(R.id.imgview);
-                            imageView.setImageBitmap(rotate(bitmap, exifDegree));  //  이미지 뷰에 비트맵 넣기
-                            TextView textView = findViewById(R.id.pathId);
-                            textView.setText(imagePath);  // 텍스트를 경로로 변경
-                        }
-                        */
-
+                        Intent intent_result = new Intent(MainActivity.this, ResultActivity.class);
+                        intent_result.putExtra("path", imagePath);
+                        startActivity(intent_result);
                     }
                     break;
 
                 case CAMERA_CODE:
-                    if(data != null) {
-                        Log.e("Test", "result = "+data);
+                    if (data != null) {
+                        Log.e("Test", "result = " + data);
                         Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath);
                         ExifInterface exif = null;
                         try {
@@ -277,8 +383,11 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             exifDegree = 0;
                         }
+                        Intent intent_result = new Intent(MainActivity.this, ResultActivity.class);
+                        intent_result.putExtra("path", imagePath);
+                        startActivity(intent_result);
                         setContentView(R.layout.result);
-                        if(bitmap != null) {
+                        if (bitmap != null) {
                             ImageView imageView = findViewById(R.id.imgview);
                             imageView.setImageBitmap(rotate(bitmap, exifDegree));//이미지 뷰에 비트맵 넣기
                             TextView textView = findViewById(R.id.pathId);
@@ -286,7 +395,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     }
-
                 default:
                     break;
             }
@@ -295,47 +403,12 @@ public class MainActivity extends AppCompatActivity {
 
     // 사진의 절대경로 구하기
     private String getRealPathFromURI(Uri contentUri) {
-        int column_index=0;
+        int column_index = 0;
         String[] pic = {MediaStore.Images.Media.DATA};
         Cursor cursor = getContentResolver().query(contentUri, pic, null, null, null);
-        if(cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         }
         return cursor.getString(column_index);
-    }
-
-    // Menu Inflater 생성
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    // menu_id로 구분된 메뉴 처리
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        switch(item.getItemId()){
-            case R.id.menu_home:
-                Toast.makeText(this,"(HOME)",Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.menu_notice:
-                Intent intent_notice = new Intent(getApplicationContext(), NoticeActivity.class);
-                startActivity(intent_notice);
-                break;
-            case R.id.menu_help:
-                Intent intent_help = new Intent(getApplicationContext(), HelpActivity.class);
-                startActivity(intent_help);
-                break;
-            case R.id.menu_settings:
-                Intent intent_settings = new Intent(getApplicationContext(), SettingsActivity.class);
-                startActivity(intent_settings);
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    // 뒤로가기 버튼 눌렀을 경우 Event 실행
-    @Override
-    public void onBackPressed(){
-        backPressCloseHandler.onBackPressed();
     }
 }
