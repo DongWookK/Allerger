@@ -47,13 +47,23 @@ public class ResultActivity extends AppCompatActivity {
     private String names[];
     {
         names = new String[]{"bean", "egg", "shrimp", "peach", "kiwi", "flour", "peanut", "fish", "tomato",
-            "almond","melon","walnut","hamburger","cheese","salmon","crab","wheat","chocolate","butter","cocoa","canola","soy"};
+            "almond","melon","walnut","hamburger","cheese","salmon","crap","wheat","chocolate","butter","cocoa","canola","soy","albumin","mayonnaise","globulin",
+        "ovalbumin","ovomucin","ovomucoid","livetin","baked","lecithin","macaroni","nougat","pasta",
+        "cream","casein","curds","custard","ghee","lacto","pudding","yogurt","margarine","miso","sprouts","tofu","nuts", "cashews","hazelnuts","ginko", "chestnut",
+        "lichi","lichee","lychee","pecans","pine","pistachio","langoustine","langouste","scampo", "tomalley","abalone"
+        ,"clams","mussel","octopus","oyster","snail","escargot","surimi","abocado","banana"};
     }
 
     private final String phones[];// COMPARE WITH NAMES THEN SHOW TO USER THE KOREAN
     {
         phones = new String[]{"땅콩알러지", "달걀", "갑각류", "복숭아","키위", "밀가루알러지", "땅콩", "물고기", "토마토","아몬드","멜론","호두",
-                "유제품 알러지","유제품 알러지","어패류","갑각류","밀가루","초콜렛 알러지","버터알러지","코코아 알러지","카놀라","간장"};
+                "유제품 알러지","유제품 알러지","어패류","갑각류","밀가루","초콜렛 알러지","버터알러지","코코아 알러지"," 콩 알러지(카놀라)","콩 알러지(된장)","계란관련 알러지","계란관련 알러지(마요네즈 함유)","계란관련 알러지",
+                "계란관련 알러지","계란관련 알러지","계란관련 알러지","계란관련 알러지","계란관련 알러지(빵)","계란관련 알러지","계란관련 알러지","계란관련 알러지(누가초콜릿)",
+                "계란관련 알러지(파스타면)","유제품 알러지(크림)","유제품 알러지(카제인)","유제품 알러지","유제품 알러지(커스타드)","유제품 알러지(버터오일)","유제품 알러지",
+        "유제품 알러지(푸딩)", "유제품 알러지(요거트)", "유제품 알러지(마가린)","콩 알러지(미소)","콩 알러지(콩나물)","콩 알러지(두부)","견과류 알러지","견과류 알러지(캐슈넛)","견과류 알러지(헤이즐넛)"
+        , "견과류 알러지(은행)","견과류 알러지(밤)","견과류 알러지(리찌넛)","견과류 알러지(리찌넛)","견과류 알러지(리찌넛)","견과류 알러지(피칸)","견과류 알러지(잣)","견과류 알러지(피스타치오)",
+        "갑각류 알러지(랍스터)","갑각류 알러지(랍스터)","갑각류 알러지(랍스터)","갑각류 알러지(랍스터)", "갑각류 알러지(전복)","갑각류 알러지(조개)","갑각류 알러지(홍합)","해산물 알러지(문어)",
+        "갑각류 알러지(굴)","달팽이","달팽이","맛살","아보카도","바나나"};
     }
 
     ArrayList<HashMap<String, String>> personList; //DB CODE
