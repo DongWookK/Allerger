@@ -5,11 +5,14 @@
     <color name="colorAccent">#D81B60</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="button">#FFFFFF</color>
+    <color name="button_color">#FFEEFF</color>
     <color name="icon">#FFFFFF</color>
     <color name="icon_background">#FF6F61</color>
     <color name="background">#FFFFFF</color>
-    <color name="board">#DDDDDD</color>
-
+    <color name="board">#EEDDEE</color>
+    <color name="tab1_background">#DDDDDD</color>
+    <color name="tab_icon">#8D8D8D</color>
     <color name="black_overlay">#66000000</color>
+    <color name="fab_o">#0091EA</color>
+    <color name="fab_c">#FF6F61</color>
 </resources>

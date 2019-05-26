@@ -4,9 +4,11 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,6 +35,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
@@ -42,10 +46,16 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+
 import android.support.design.widget.NavigationView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private Animation fab_open, fab_close;
+    private Boolean isFabOpen = false;
+    private FloatingActionButton fab1, fab2, fab3;
 
     // REQUEST CODE
     private final int REQUEST_PERMISSION_CODE = 1111;
@@ -73,8 +83,25 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         // FloatingActionButton 이벤트 처리
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
+        fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
+
+        fab1 = findViewById(R.id.fab1);
+        fab1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                anim();
+            }
+        });
+        fab2 = findViewById(R.id.fab2);
+        fab2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectPhoto();
+            }
+        });
+        fab3 = findViewById(R.id.fab3);
+        fab3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 selectGallery();
@@ -94,9 +121,9 @@ public class MainActivity extends AppCompatActivity
 
         // TabLayout 실행
         TabLayout tabLayout = findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("Tab1"));
-        tabLayout.addTab(tabLayout.newTab().setText("Tab2"));
-        tabLayout.addTab(tabLayout.newTab().setText("Search"));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_tab_main));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_tab_list));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_tab_search));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         // 스와이프에 대한 ViewPage, tabLayout 간 동기화
@@ -127,15 +154,23 @@ public class MainActivity extends AppCompatActivity
     // 뒤로가기 버튼 처리
     @Override
     public void onBackPressed() {
+        TabLayout tabLayout = findViewById(R.id.tab_layout);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         WebView webView = findViewById(R.id.webView);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else if(webView.canGoBack()){
-            try{
-                webView.goBack();
-            } catch (Exception e){ }
-        } else{
+        } else if(isFabOpen){
+            anim();
+        } else if(tabLayout.getSelectedTabPosition() == 2){
+            if(webView.canGoBack()) {
+                try {
+                    webView.goBack();
+                } catch (Exception e) {
+                }
+            } else{
+                super.onBackPressed();
+            }
+        } else {
             super.onBackPressed();
         }
     }
@@ -301,5 +336,26 @@ public class MainActivity extends AppCompatActivity
             column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         }
         return cursor.getString(column_index);
+    }
+
+    // 플로팅 버튼 애니메이션
+    public void anim(){
+        if(isFabOpen){
+            fab2.startAnimation(fab_close);
+            fab3.startAnimation(fab_close);
+            fab2.setClickable(false);
+            fab3.setClickable(false);
+            isFabOpen = false;
+            fab1.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.fab_o)));
+            fab1.setImageDrawable(getDrawable(R.drawable.ic_tab_add));
+        }else{
+            fab2.startAnimation(fab_open);
+            fab3.startAnimation(fab_open);
+            fab2.setClickable(true);
+            fab3.setClickable(true);
+            isFabOpen = true;
+            fab1.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.fab_c)));
+            fab1.setImageDrawable(getDrawable(R.drawable.ic_fab_close));
+        }
     }
 }
