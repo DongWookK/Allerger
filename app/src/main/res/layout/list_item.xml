@@ -22,4 +22,9 @@
         android:layout_height="wrap_content"
         android:textStyle="bold" />
 
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/allergypic"/>
+
 </LinearLayout>
