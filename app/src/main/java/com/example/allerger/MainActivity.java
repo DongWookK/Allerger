@@ -33,6 +33,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -94,7 +96,7 @@ public class MainActivity extends AppCompatActivity
         TabLayout tabLayout = findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Tab1"));
         tabLayout.addTab(tabLayout.newTab().setText("Tab2"));
-        tabLayout.addTab(tabLayout.newTab().setText("Tab3"));
+        tabLayout.addTab(tabLayout.newTab().setText("Search"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         // 스와이프에 대한 ViewPage, tabLayout 간 동기화
@@ -126,9 +128,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        WebView webView = findViewById(R.id.webView);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        } else if(webView.canGoBack()){
+            try{
+                webView.goBack();
+            } catch (Exception e){ }
+        } else{
             super.onBackPressed();
         }
     }
