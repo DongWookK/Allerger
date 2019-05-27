@@ -215,18 +215,7 @@ public class ResultActivity extends AppCompatActivity {
                         String Name = c.getString(c.getColumnIndex("name"));
                         String Phone = c.getString(c.getColumnIndex("phone"));
                         HashMap<String,String> persons = new HashMap<String,String>();
-                        /*for(int i=0;i<compare.length;i++)
-                        {
-                            if(compare[i].contains(Name))
-                            {
-                                persons.put(TAG_NAME,Name);
-                                persons.put(TAG_PHONE,Phone);
 
-                                //ArrayList에 추가합니다..
-                                personList.add(persons);
-                                break;
-                            }
-                        }*/
                         if (Clearing.contains(Name))
                         {
                             persons.put(TAG_NAME,Name);
