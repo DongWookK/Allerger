@@ -315,11 +315,9 @@ public class MainActivity extends AppCompatActivity
                     break;
 
                 case CAMERA_CODE:
-                    if (data != null) {
-                        Intent intent_result_camera = new Intent(MainActivity.this, ResultActivity.class);
-                        intent_result_camera.putExtra("path", currentPhotoPath);
-                        startActivity(intent_result_camera);
-                    }
+                    Intent intent_result_camera = new Intent(MainActivity.this, ResultActivity.class);
+                    intent_result_camera.putExtra("path", currentPhotoPath);
+                    startActivity(intent_result_camera);
                     break;
                 default:
                     break;
