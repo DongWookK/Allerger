@@ -118,10 +118,9 @@ public class ResultActivity extends AppCompatActivity {
         TextView textView = findViewById(R.id.pathId);
         textView.setText(path);  // 텍스트를 경로로 변경
 
-
         File imgFile = new File(path);
         Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-        ImageView imageView = findViewById(R.id.imgview);
+        ImageView imageView = findViewById(R.id.result_IMG);
         imageView.setImageBitmap(myBitmap);
 
         image = myBitmap;
@@ -200,6 +199,7 @@ public class ResultActivity extends AppCompatActivity {
             }
         }
     }
+
     // 오류시 show list 지우기
     protected void showList(String Clearing){
         try {

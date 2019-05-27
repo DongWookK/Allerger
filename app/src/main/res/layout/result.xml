@@ -2,40 +2,73 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:fillViewport="true">
+
     <LinearLayout
         android:id="@+id/result"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/background"
+        android:background="@color/white"
         android:orientation="vertical">
-        <TextView
-            android:id="@+id/title"
-            android:layout_marginTop="100dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:textStyle="bold"
-            android:textSize="40sp"
-            android:text="Result"/>
-        <ImageView android:id="@+id/imgview"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
+
+        <ImageView android:id="@+id/result_IMG"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:background="#5E5E5E"
             android:layout_gravity="center_horizontal"/>
+
+        <TextView
+            android:id="@+id/path_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:fontFamily="sans-serif-black"
+            android:background="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:text="Directory"/>
+
         <TextView
             android:id="@+id/pathId"
-            android:layout_marginTop="20dp"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_marginTop="10sp"
+            android:background="@color/white"/>
+
+        <TextView
+            android:id="@+id/ocr_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:layout_marginTop="30dp"
+            android:fontFamily="sans-serif-black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:text="OCR Result"/>
+
         <TextView
             android:id="@+id/ocrResult"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10sp"
+            android:background="@color/white"/>
+
+        <TextView
+            android:id="@+id/list_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:layout_marginTop="30dp"
+            android:fontFamily="sans-serif-black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:text="List Result"/>
 
         <ListView
             android:id="@+id/listView"
             android:layout_width="match_parent"
-            android:layout_height="200dp" />
+            android:layout_height="match_parent"
+            android:layout_marginTop="10sp"
+            android:background="@color/white"/>
     </LinearLayout>
 </ScrollView>

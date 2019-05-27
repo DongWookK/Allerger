@@ -187,10 +187,10 @@ public class MainActivity extends AppCompatActivity
             Intent intent_settings = new Intent(getApplicationContext(), SettingsActivity.class);
             startActivity(intent_settings);
         } else if(id == R.id.nav_help){
-            Intent intent_help = new Intent(getApplicationContext(), SettingsActivity.class);
+            Intent intent_help = new Intent(getApplicationContext(), HelpActivity.class);
             startActivity(intent_help);
         } else if(id == R.id.nav_policy){
-            Intent intent_policy = new Intent(getApplicationContext(), SettingsActivity.class);
+            Intent intent_policy = new Intent(getApplicationContext(), PolicyActivity.class);
             startActivity(intent_policy);
         }
 
