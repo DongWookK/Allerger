@@ -140,8 +140,8 @@ public class ResultActivity extends AppCompatActivity {
         //code == 0  by gallery
         if(code ==0){
             String path = data.getExtras().getString("path");
-            //TextView textView = findViewById(R.id.pathId);
-            //textView.setText(path);  // 텍스트를 경로로 변경
+            TextView textView = findViewById(R.id.pathId);
+            textView.setText(path);  // 텍스트를 경로로 변경
             Log.v("태그",path);
             File imgFile = new File(path);
             Log.v("태그",imgFile.getAbsolutePath());
