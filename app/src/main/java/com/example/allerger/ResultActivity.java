@@ -6,6 +6,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -43,15 +48,17 @@ public class ResultActivity extends AppCompatActivity {
 
     private final String dbName = "webnautes";// DBNAME
     private final String tableName = "person";
+    Bitmap imageBitmap;
+    ImageView imageView;
 
     private String names[];
     {
         names = new String[]{"bean", "egg", "shrimp", "peach", "kiwi", "flour", "peanut", "fish", "tomato",
-            "almond","melon","walnut","hamburger","cheese","salmon","crap","wheat","chocolate","butter","cocoa","canola","soy","albumin","mayonnaise","globulin",
-        "ovalbumin","ovomucin","ovomucoid","livetin","baked","lecithin","macaroni","nougat","pasta",
-        "cream","casein","curds","custard","ghee","lacto","pudding","yogurt","margarine","miso","sprouts","tofu","nuts", "cashews","hazelnuts","ginko", "chestnut",
-        "lichi","lichee","lychee","pecans","pine","pistachio","langoustine","langouste","scampo", "tomalley","abalone"
-        ,"clams","mussel","octopus","oyster","snail","escargot","surimi","abocado","banana"};
+                "almond","melon","walnut","hamburger","cheese","salmon","crap","wheat","chocolate","butter","cocoa","canola","soy","albumin","mayonnaise","globulin",
+                "ovalbumin","ovomucin","ovomucoid","livetin","baked","lecithin","macaroni","nougat","pasta",
+                "cream","casein","curds","custard","ghee","lacto","pudding","yogurt","margarine","miso","sprouts","tofu","nuts", "cashews","hazelnuts","ginko", "chestnut",
+                "lichi","lichee","lychee","pecans","pine","pistachio","langoustine","langouste","scampo", "tomalley","abalone"
+                ,"clams","mussel","octopus","oyster","snail","escargot","surimi","abocado","banana"};
     }
 
     private final String phones[];// COMPARE WITH NAMES THEN SHOW TO USER THE KOREAN
@@ -60,10 +67,10 @@ public class ResultActivity extends AppCompatActivity {
                 "유제품 알러지(햄버거)","유제품 알러지(치즈)","어패류 알러지(연어)","갑각류 알러지(게)","밀가루 알러지(밀)","유제품 알러지(초콜렛)","유제품 알러지(버터)","코코아 알러지"," 콩 알러지(카놀라)","콩 알러지(된장)","계란 알러지","계란 알러지(마요네즈 함유)","계란 알러지",
                 "계란관련 알러지","계란관련 알러지","계란관련 알러지","계란관련 알러지","계란관련 알러지(빵)","계란관련 알러지","계란관련 알러지","계란관련 알러지(누가초콜릿)",
                 "계란관련 알러지(파스타면)","유제품 알러지(크림)","유제품 알러지(카제인)","유제품 알러지","유제품 알러지(커스타드)","유제품 알러지(버터오일)","유제품 알러지",
-        "유제품 알러지(푸딩)", "유제품 알러지(요거트)", "유제품 알러지(마가린)","콩 알러지(미소)","콩 알러지(콩나물)","콩 알러지(두부)","견과류 알러지","견과류 알러지(캐슈넛)","견과류 알러지(헤이즐넛)"
-        , "견과류 알러지(은행)","견과류 알러지(밤)","견과류 알러지(리찌넛)","견과류 알러지(리찌넛)","견과류 알러지(리찌넛)","견과류 알러지(피칸)","견과류 알러지(잣)","견과류 알러지(피스타치오)",
-        "갑각류 알러지(랍스터)","갑각류 알러지(랍스터)","갑각류 알러지(랍스터)","갑각류 알러지(랍스터)", "갑각류 알러지(전복)","갑각류 알러지(조개)","갑각류 알러지(홍합)","해산물 알러지(문어)",
-        "갑각류 알러지(굴)","달팽이","달팽이","맛살","아보카도","바나나"};
+                "유제품 알러지(푸딩)", "유제품 알러지(요거트)", "유제품 알러지(마가린)","콩 알러지(미소)","콩 알러지(콩나물)","콩 알러지(두부)","견과류 알러지","견과류 알러지(캐슈넛)","견과류 알러지(헤이즐넛)"
+                , "견과류 알러지(은행)","견과류 알러지(밤)","견과류 알러지(리찌넛)","견과류 알러지(리찌넛)","견과류 알러지(리찌넛)","견과류 알러지(피칸)","견과류 알러지(잣)","견과류 알러지(피스타치오)",
+                "갑각류 알러지(랍스터)","갑각류 알러지(랍스터)","갑각류 알러지(랍스터)","갑각류 알러지(랍스터)", "갑각류 알러지(전복)","갑각류 알러지(조개)","갑각류 알러지(홍합)","해산물 알러지(문어)",
+                "갑각류 알러지(굴)","달팽이","달팽이","맛살","아보카도","바나나"};
     }
 
     ArrayList<HashMap<String, String>> personList; //DB CODE
@@ -113,6 +120,10 @@ public class ResultActivity extends AppCompatActivity {
 
         }
 
+
+
+
+        /*
         Intent intent = getIntent();
         String path = intent.getExtras().getString("path");
         TextView textView = findViewById(R.id.pathId);
@@ -120,10 +131,37 @@ public class ResultActivity extends AppCompatActivity {
 
         File imgFile = new File(path);
         Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-        ImageView imageView = findViewById(R.id.result_IMG);
-        imageView.setImageBitmap(myBitmap);
+        */
+        int code;
+        Intent data = getIntent();
+        Bundle extras = data.getExtras();
+        code = extras.getInt("code");
 
-        image = myBitmap;
+        //code == 0  by gallery
+        if(code ==0){
+            String path = data.getExtras().getString("path");
+            TextView textView = findViewById(R.id.pathId);
+            textView.setText(path);  // 텍스트를 경로로 변경
+            Log.v("태그",path);
+            File imgFile = new File(path);
+            Log.v("태그",imgFile.getAbsolutePath());
+            imageBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            imageView = findViewById(R.id.result_IMG);
+            imageView.setImageBitmap(imageBitmap);
+
+        }
+        //code == 1    through camera
+        else if(code ==1){
+            imageBitmap = (Bitmap) extras.get("data");
+            imageView = findViewById(R.id.result_IMG);
+            imageView.setImageBitmap(imageBitmap);
+
+        }
+        else{
+            Toast.makeText(ResultActivity.this, "오류.", Toast.LENGTH_SHORT).show();
+        }
+
+        image = imageBitmap;
         //언어파일 경로
         datapath = getFilesDir()+ "/tesseract/";
 
@@ -137,6 +175,9 @@ public class ResultActivity extends AppCompatActivity {
         mTess.init(datapath, lang);
         processImage(imageView);
     }
+
+
+
 
     public void processImage(View view) {
         String OCRresult = null;
@@ -160,6 +201,7 @@ public class ResultActivity extends AppCompatActivity {
 
         showList(OCRresult);
     }
+
 
     // copy file to device
     private void copyFiles() {
