@@ -17,7 +17,7 @@
             android:background="#5E5E5E"
             android:layout_gravity="center_horizontal"/>
 
-        <TextView
+       <!-- <TextView
             android:id="@+id/path_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,9 +33,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10sp"
-            android:background="@color/white"/>
+            android:background="@color/white"/>-->
 
         <TextView
+            android:textColor="@color/colorAccent"
             android:id="@+id/ocr_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -44,7 +45,7 @@
             android:fontFamily="sans-serif-black"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:text="OCR Result"/>
+            android:text="인식 성분"/>
 
         <TextView
             android:id="@+id/ocrResult"
@@ -54,6 +55,7 @@
             android:background="@color/white"/>
 
         <TextView
+            android:textColor="@color/colorAccent"
             android:id="@+id/list_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -62,7 +64,7 @@
             android:fontFamily="sans-serif-black"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:text="List Result"/>
+            android:text="알러지 분석 결과"/>
 
         <ListView
             android:id="@+id/listView"
