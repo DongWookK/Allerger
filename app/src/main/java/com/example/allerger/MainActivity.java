@@ -250,10 +250,43 @@ public class MainActivity extends AppCompatActivity
 
     // 카메라 기능
     private void selectPhoto() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, CAMERA_CODE);
+        String state = Environment.getExternalStorageState();
+        // 외장메모리 검사
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                File photoFile = null;
+                try {
+                    photoFile = createImageFile();
+                } catch (IOException ex) {
+                    Log.e("selectPhoto Error", ex.toString());
+                }
+                if (photoFile != null) {
+                    photoUri = FileProvider.getUriForFile(this, "com.example.allerger", photoFile);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                    startActivityForResult(intent, CAMERA_CODE);
+                }
+            }
+        } else {
+            Toast.makeText(this, "저장공간이 접근 불가능한 기기입니다", Toast.LENGTH_SHORT).show();
+            return;
         }
+    }
+
+    // 카메라로 찍은 사진 파일 생성
+    private File createImageFile() throws IOException {
+        File dir = new File(Environment.getExternalStorageDirectory() + "/path/");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        mImageCaptureName = timeStamp + ".png";
+
+        File storageDir = new File(Environment.getExternalStorageDirectory().getAbsoluteFile() + "/path/"
+                + mImageCaptureName);
+        currentPhotoPath = storageDir.getAbsolutePath();
+
+        return storageDir;
     }
 
     // 갤러리 기능 실행
@@ -276,25 +309,16 @@ public class MainActivity extends AppCompatActivity
                         Uri imgUri = data.getData();
                         imagePath = getRealPathFromURI(imgUri); // path 경로
                         Intent intent_result_gallery = new Intent(MainActivity.this, ResultActivity.class);
-                        Bundle extras = data.getExtras();
-                        extras.putInt("code", 0);
-                        intent_result_gallery.putExtras(extras);
                         intent_result_gallery.putExtra("path", imagePath);
                         startActivity(intent_result_gallery);
                     }
                     break;
 
                 case CAMERA_CODE:
-                    if (requestCode == CAMERA_CODE && resultCode == RESULT_OK) {
-                        Bundle extras = data.getExtras();
-
-                        Intent intent = new Intent(MainActivity.this, ResultActivity.class);
-                        extras.putInt("code", 1);
-                        intent.putExtras(extras);
-                        startActivity(intent);
-
-                    }
-
+                    Intent intent_result_camera = new Intent(MainActivity.this, ResultActivity.class);
+                    intent_result_camera.putExtra("path", currentPhotoPath);
+                    startActivity(intent_result_camera);
+                    break;
                 default:
                     break;
             }
