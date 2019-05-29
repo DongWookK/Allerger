@@ -11,6 +11,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -161,7 +162,14 @@ public class ResultActivity extends AppCompatActivity {
         }
         //code == 1    through camera
         else if(code ==1){
-            imageBitmap = (Bitmap) extras.get("data");
+            String path = extras.getString("path");
+            File imgFile = new File(path);
+            Log.v("태그",imgFile.getAbsolutePath());
+            imageBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+
+            imageBitmap = resizeBitmap(imageBitmap);
+            imageBitmap =rotateImage(imageBitmap, 90);
+
             imageView = findViewById(R.id.result_IMG);
             imageView.setImageBitmap(imageBitmap);
 
@@ -210,6 +218,30 @@ public class ResultActivity extends AppCompatActivity {
 
         showList(OCRresult);
     }
+    static public Bitmap resizeBitmap(Bitmap original) {
+
+        int resizeWidth = 400;
+
+        double aspectRatio = (double) original.getHeight() / (double) original.getWidth();
+        int targetHeight = (int) (resizeWidth * aspectRatio);
+        Bitmap result = Bitmap.createScaledBitmap(original, resizeWidth, targetHeight, false);
+        if (result != original) {
+            original.recycle();
+        }
+        return result;
+    }
+
+    public Bitmap rotateImage(Bitmap src, float degree) {
+
+        // Matrix 객체 생성
+        Matrix matrix = new Matrix();
+        // 회전 각도 셋팅
+        matrix.postRotate(degree);
+        // 이미지와 Matrix 를 셋팅해서 Bitmap 객체 생성
+        return Bitmap.createBitmap(src, 0, 0, src.getWidth(),
+                src.getHeight(), matrix, true);
+    }
+
 
 
     // copy file to device
