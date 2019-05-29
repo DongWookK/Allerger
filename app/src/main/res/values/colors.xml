@@ -15,4 +15,5 @@
     <color name="black_overlay">#66000000</color>
     <color name="fab_o">#0091EA</color>
     <color name="fab_c">#FF6F61</color>
+    <color name="splash">#CB5151</color>
 </resources>
