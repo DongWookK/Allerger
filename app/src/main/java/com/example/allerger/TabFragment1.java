@@ -16,7 +16,7 @@ public class TabFragment1 extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         LinearLayout tab1 = (LinearLayout) inflater.inflate(R.layout.tab_fragment_1, container, false);
         ImageView fra1 = (ImageView)tab1.findViewById(R.id.frag1_main);
-        Glide.with(this).load(R.drawable.fra).into(fra1);
+        Glide.with(this).load(R.drawable.fra1).into(fra1);
         return tab1;
     }
 }
