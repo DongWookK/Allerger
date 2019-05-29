@@ -23,8 +23,8 @@
         android:textStyle="bold" />
 
     <ImageView
+        android:id="@+id/image_pic"
         android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@drawable/allergypic"/>
+        android:layout_height="50dp" />
 
 </LinearLayout>

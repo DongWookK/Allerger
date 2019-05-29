@@ -1,5 +1,6 @@
 package com.example.allerger;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -12,11 +13,16 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -79,7 +85,8 @@ public class ResultActivity extends AppCompatActivity {
     private static final String TAG_PHONE ="Allergy";
 
     SQLiteDatabase sampleDB = null;
-    ListAdapter adapter;
+    //ListAdapter adapter;
+    ListViewAdapter adapter;
 
     Bitmap image; // 사용되는 이미지
     private TessBaseAPI mTess; // Tess API reference
@@ -91,8 +98,10 @@ public class ResultActivity extends AppCompatActivity {
         setContentView(R.layout.result);
 
         list = findViewById(R.id.listView);
-        personList = new ArrayList<HashMap<String,String>>();
 
+
+        adapter=new ListViewAdapter();
+        list.setAdapter(adapter);
 
         try {
 
@@ -253,16 +262,48 @@ public class ResultActivity extends AppCompatActivity {
                 if (c.moveToFirst()) {
                     do {
 
-                        // 테이블에서 두개의 컬럼값을 가져와서
                         String Name = c.getString(c.getColumnIndex("name"));
                         String Phone = c.getString(c.getColumnIndex("phone"));
                         HashMap<String,String> persons = new HashMap<String,String>();
-
+                        int pic_id=0;
                         if (Clearing.contains(Name))
                         {
-                            persons.put(TAG_NAME,Name);
+
+                            /*persons.put(TAG_NAME,Name);
                             persons.put(TAG_PHONE,Phone);
-                            personList.add(persons);
+                            personList.add(persons);*/
+                            if(Phone.contains("계란"))
+                            {
+                                pic_id=R.drawable.eggs;
+                            }
+                            else if(Phone.contains("유제품"))
+                            {
+                                pic_id=R.drawable.milk;
+                            }
+                            else if(Phone.contains("콩"))
+                            {
+                                pic_id=R.drawable.soya;
+                            }
+                            else if(Phone.contains("견과류"))
+                            {
+                                pic_id=R.drawable.peanut_red_109453;
+                            }
+                            else if(Phone.contains("어패류"))
+                            {
+                                pic_id=R.drawable.fishpic;
+                            }
+                            else if(Phone.contains("갑각류"))
+                            {
+                                pic_id=R.drawable.jogaepic;
+                            }
+                            else
+                            {
+                                pic_id=R.drawable.sesame;
+                            }
+
+                            adapter.addItem(ContextCompat.getDrawable(this,pic_id),Name,Phone);
+
+
                         }
 
 
@@ -274,11 +315,11 @@ public class ResultActivity extends AppCompatActivity {
             ReadDB.close();
 
             // 새로운 apapter를 생성하여 데이터를 넣은 후..
-            adapter = new SimpleAdapter(
+           /* adapter = new SimpleAdapter(
                     this, personList, R.layout.list_item,
                     new String[]{TAG_NAME,TAG_PHONE},
                     new int[]{ R.id.name, R.id.phone}
-            );
+            );*/
 
             // 화면에 보여주기 위해 Listview에 연결합니다.
             list.setAdapter(adapter);
@@ -288,5 +329,96 @@ public class ResultActivity extends AppCompatActivity {
             Log.e("",  se.getMessage());
         }
 
+    }
+    public class ListViewAdapter extends BaseAdapter {
+        private ArrayList<ListViewItem>listViewItemList=new ArrayList<ListViewItem>();
+
+        public ListViewAdapter()
+        {
+
+        }
+
+        public int getCount(){
+            return listViewItemList.size();
+        }
+
+        public View getView(int position, View convertView, ViewGroup parent)
+        {
+            final int pos=position;
+            final Context context=parent.getContext();
+
+            if(convertView==null)
+            {
+                LayoutInflater inflater=(LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView=inflater.inflate(R.layout.list_item,parent,false);
+            }
+
+
+            TextView nameTextView=(TextView)convertView.findViewById(R.id.name);
+
+            TextView descTextView=(TextView)convertView.findViewById(R.id.phone);
+
+            ImageView iconImageView=(ImageView)convertView.findViewById(R.id.image_pic);
+
+            ListViewItem listViewItem=listViewItemList.get(position);
+
+
+            nameTextView.setText(listViewItem.getTitle());
+            descTextView.setText(listViewItem.getDesc());
+            iconImageView.setImageDrawable(listViewItem.getIcon());
+
+            return convertView;
+
+        }
+
+        public long getItemId(int position)
+        {
+            return position;
+        }
+        public Object getItem(int position)
+        {
+            return listViewItemList.get(position);
+        }
+        public void addItem(Drawable icon, String title, String desc)
+        {
+            ListViewItem item=new ListViewItem();
+
+            item.setIcon(icon);
+            item.setTitle(title);
+            item.setDesc(desc);
+
+            listViewItemList.add(item);
+        }
+    }
+    public class ListViewItem{
+        private Drawable iconDrawable;
+        private String titleStr;
+        private String descStr;
+
+        public void setIcon(Drawable icon)
+        {
+            iconDrawable=icon;
+        }
+        public void setTitle(String title)
+        {
+            titleStr=title;
+        }
+        public void setDesc(String desc)
+        {
+            descStr=desc;
+        }
+
+        public Drawable getIcon()
+        {
+            return this.iconDrawable;
+        }
+        public String getTitle()
+        {
+            return this.titleStr;
+        }
+        public String getDesc()
+        {
+            return this.descStr;
+        }
     }
 }
