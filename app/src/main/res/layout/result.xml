@@ -37,7 +37,7 @@
             android:layout_marginTop="10sp"
             android:background="@color/white"/>-->
 
-        <TextView
+        <!--<TextView
             android:textColor="@color/colorAccent"
             android:id="@+id/ocr_title"
             android:layout_width="match_parent"
@@ -54,7 +54,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10sp"
-            android:background="@color/white"/>
+            android:background="@color/white"/>-->
 
 
         <TextView
