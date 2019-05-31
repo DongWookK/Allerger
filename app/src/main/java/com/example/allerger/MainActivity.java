@@ -203,11 +203,11 @@ public class MainActivity extends AppCompatActivity
 
     // 사용자 권한 요청
     private void checkPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) || (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)) {
             if ((ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) || (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA))) {
                 new AlertDialog.Builder(this)
-                        .setTitle("알림")
-                        .setMessage("저장소 권한이 거부되었습니다. 사용을 원하시면 설정에서 해당 권한을 직접 허용하셔야 합니다.")
+                        .setTitle("경고")
+                        .setMessage("권한이 거부되었습니다. 사용을 원하시면 설정에서 해당 권한을 직접 허용하셔야 합니다.")
                         .setNeutralButton("설정", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity
                                 startActivity(intent);
                             }
                         })
-                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                        .setPositiveButton("종료", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 finish();
@@ -240,7 +240,8 @@ public class MainActivity extends AppCompatActivity
                 for (int i = 0; i < grantResults.length; i++) {
                     // grantResults[] : 허용된 권한은 0, 거부한 권한은 -1
                     if (grantResults[i] < 0) {
-                        Toast.makeText(MainActivity.this, "해당 권한을 활성화 하셔야 합니다.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "권한을 활성화 하셔야 합니다.", Toast.LENGTH_SHORT).show();
+                        checkPermission();
                         return;
                     }
                 }
