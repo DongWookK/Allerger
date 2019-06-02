@@ -1,4 +1,4 @@
-package com.example.allerger;
+package com.Allergerapp.allerger;
 
 import org.junit.Test;
 

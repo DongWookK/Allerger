@@ -1,4 +1,4 @@
-package com.example.allerger;
+package com.Allergerapp.allerger;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
