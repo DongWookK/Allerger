@@ -174,7 +174,9 @@ public class ResultActivity extends AppCompatActivity {
 
         mTess = new TessBaseAPI();
         mTess.init(datapath, lang);
+        mTess.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ1234567890',.?;/ ");
         processImage(imageView);
+
     }
 
 
@@ -204,7 +206,7 @@ public class ResultActivity extends AppCompatActivity {
     }
     static public Bitmap resizeBitmap(Bitmap original) {
 
-        int resizeWidth = 400;
+        int resizeWidth = 800;
 
         double aspectRatio = (double) original.getHeight() / (double) original.getWidth();
         int targetHeight = (int) (resizeWidth * aspectRatio);
