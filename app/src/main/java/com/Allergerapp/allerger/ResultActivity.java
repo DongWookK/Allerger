@@ -185,7 +185,7 @@ public class ResultActivity extends AppCompatActivity {
         String print_= null;
         mTess.setImage(image);
         OCRresult = mTess.getUTF8Text();
-       // TextView OCRTextView = findViewById(R.id.ocrResult);
+        TextView OCRTextView = findViewById(R.id.ocrResult);
         //여기서 부터 데이터 클리어링.
 
 
@@ -197,8 +197,8 @@ public class ResultActivity extends AppCompatActivity {
 
         //여기까지 데이터 클리어링, 소문자로 통일, 숫자, 특수기호 제거.
 
-        //OCRTextView.setText(OCRresult);//여기가 OCR 출력하는 부분.
-        //OCRTextView.setText(print_);
+        OCRTextView.setText(OCRresult);//여기가 OCR 출력하는 부분.
+        OCRTextView.setText(print_);
 
         showList(OCRresult);
     }
