@@ -1,2 +1,5 @@
 # Allerger
-Mobile Apps to find allergy ingredients in food using OCR
+Mobile Application that helps avoid food allergy
+
+It can simply identify allergy ingredient of food using Smartphone camera 
+
