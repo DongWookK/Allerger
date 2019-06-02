@@ -30,8 +30,8 @@
             android:summary="개발자 정보를 확인합니다"
             android:title="개발자 정보" >
             <intent
-                android:targetClass="com.example.allerger.MemberActivity"
-                android:targetPackage="com.example.allerger" />
+                android:targetClass="com.Allergerapp.allerger.MemberActivity"
+                android:targetPackage="com.Allergerapp.allerger" />
         </Preference>
         <Preference
             android:summary="개발자에게 메일을 보냅니다"
