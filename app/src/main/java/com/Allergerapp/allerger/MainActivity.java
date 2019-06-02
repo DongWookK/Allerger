@@ -255,7 +255,7 @@ public class MainActivity extends AppCompatActivity
                 if (photoFile != null) {
                     Log.v("photoFile",photoFile.toString());
                     imageFilePath = photoFile.toString();
-                    Uri photoUri = FileProvider.getUriForFile(this, "com.example.allerger.provider", photoFile);
+                    Uri photoUri = FileProvider.getUriForFile(this, "com.Allergerapp.allerger.provider", photoFile);
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                     startActivityForResult(intent, CAMERA_CODE);
                 }
