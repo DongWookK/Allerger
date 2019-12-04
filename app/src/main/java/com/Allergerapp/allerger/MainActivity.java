@@ -225,6 +225,134 @@ public class MainActivity extends AppCompatActivity
     }
   }
 
+  // 사용자 권한 요청 응답 처리
+  @Override
+  public void onRequestPermissionsResult(int requestCode,
+                                         @NonNull String permissions[], @NonNull int[] grantResults) {
+    switch (requestCode) {
+      case REQUEST_PERMISSION_CODE:
+        for (int i = 0; i < grantResults.length; i++) {
+          // grantResults[] : 허용된 권한은 0, 거부한 권한은 -1
+          if (grantResults[i] < 0) {
+            Toast.makeText(MainActivity.this, "권한을 활성화 하셔야 합니다.", Toast.LENGTH_SHORT).show();
+            checkPermission();
+            return;
+          }
+        }
+        // 허용 되었을 경우
+        Toast.makeText(MainActivity.this, "권한이 허용 되었습니다.", Toast.LENGTH_SHORT).show();
+        break;
+    }
+  }
+
+  // 카메라 기능
+  private void selectPhoto() {
+    String state = Environment.getExternalStorageState();
+    // 외장메모리 검사
+    if (Environment.MEDIA_MOUNTED.equals(state)) {
+      Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+      if (intent.resolveActivity(getPackageManager()) != null) {
+        File photoFile = null;
+        try {
+          photoFile = createImageFile();
+        } catch (IOException ex) {
+          Log.e("selectPhoto Error", ex.toString());
+        }
+        if (photoFile != null) {
+          Log.v("photoFile", photoFile.toString());
+          imageFilePath = photoFile.toString();
+          photoUri = FileProvider.getUriForFile(this, "com.Allergerapp.allerger.provider", photoFile);
+          intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+          startActivityForResult(intent, CAMERA_CODE);
+        }
+      }
+    } else {
+      Toast.makeText(this, "저장공간이 접근 불가능한 기기입니다", Toast.LENGTH_SHORT).show();
+      return;
+    }
+  }
+
+  // 카메라로 찍은 사진 파일 생성
+  private File createImageFile() throws IOException {
+    String timeStamp =
+        new SimpleDateFormat("yyyyMMdd_HHmmss",
+            Locale.getDefault()).format(new Date());
+    String imageFileName = "IMG_" + timeStamp + "_";
+    File storageDir =
+        getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+    File image = File.createTempFile(
+        imageFileName,  /* prefix */
+        ".jpg",         /* suffix */
+        storageDir      /* directory */
+    );
+
+    imageFilePath = image.getAbsolutePath();
+    return image;
+  }
+
+  // 갤러리 기능 실행
+  private void selectGallery() {
+    Intent intent = new Intent(Intent.ACTION_PICK);
+    intent.setData(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+    intent.setType("image/*");
+    startActivityForResult(intent, GALLERY_CODE);
+
+  }
+
+  // 각 Intent 결과 처리
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (resultCode == RESULT_OK) {
+      switch (requestCode) {
+        case GALLERY_CODE:
+          if (data != null) {
+            Uri imgUri = data.getData();
+            imagePath = getRealPathFromURI(imgUri); // path 경로
+            Intent intent_result_gallery = new Intent(MainActivity.this, ResultActivity.class);
+            Bundle extras = data.getExtras();
+            extras.putInt("code", 0);
+            intent_result_gallery.putExtras(extras);
+            intent_result_gallery.putExtra("path", imagePath);
+            startActivity(intent_result_gallery);
+          }
+          break;
+
+        case CAMERA_CODE:
+          CropImage.activity(photoUri)
+              .setGuidelines(CropImageView.Guidelines.ON)
+              .start(this);
+          break;
+      }
+    }
+
+    if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+      CropImage.ActivityResult result = CropImage.getActivityResult(data);
+      if (resultCode == RESULT_OK) {
+        Uri resultUri = result.getUri();
+        Intent intent_result_camera = new Intent(MainActivity.this, ResultActivity.class);
+        Bundle extras = new Bundle();
+        extras.putInt("code", 1);
+        extras.putString("path", resultUri.toString());
+        intent_result_camera.putExtras(extras);
+        startActivity(intent_result_camera);
+      } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+        Exception error = result.getError();
+        Toast.makeText(this, error.toString(), Toast.LENGTH_SHORT).show();
+      }
+    }
+  }
+
+  // 사진의 절대경로 구하기
+  private String getRealPathFromURI(Uri contentUri) {
+    int column_index = 0;
+    String[] pic = {MediaStore.Images.Media.DATA};
+    Cursor cursor = getContentResolver().query(contentUri, pic, null, null, null);
+    if (cursor.moveToFirst()) {
+      column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+    }
+    return cursor.getString(column_index);
+  }
 
   // 플로팅 버튼 애니메이션
   public void anim() {
